@@ -35,5 +35,13 @@
     "ignore": [
       "*.ts"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alanshaw/parallel-transform-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alanshaw/parallel-transform-web/issues"
+  },
+  "homepage": "https://github.com/alanshaw/parallel-transform-web#readme"
 }
