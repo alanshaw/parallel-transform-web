@@ -18,11 +18,18 @@ npm i parallel-transform-web
 ```js
 import { Parallel } from 'parallel-transform-web'
 
+// a stream that yields random numbers, forever!
+const randomNumbers = new ReadableStream({ pull: controller => controller.enqueue(Math.random() * 10) })
+// run up to 10 transforms concurrently
 const concurrency = 10
+// identity transform that adds a short delay
+const transformer = n => new Promise(resolve => setTimeout(() => resolve(n), n))
+// parallelized transform stream
+const delayer = new Parallel(concurrency, transformer)
+// writable stream that just logs whatever is written to it
+const logger = new WritableStream({ write: n => console.log(n) })
 
-await new ReadableStream({ pull: controller => controller.enqueue(Math.random()) })
-  .pipeThrough(new Parallel(concurrency, n => new Promise(resolve => setTimeout(() => resolve(n), n))))
-  .pipeTo(new WritableStream({ write: n => console.log('Delayed by', n) }))
+await randomNumbers.pipeThrough(delayer).pipeTo(logger)
 ```
 
 
