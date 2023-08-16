@@ -1,0 +1,39 @@
+{
+  "name": "parallel-transform-web",
+  "version": "0.0.0",
+  "description": "Parallel transform for web streams. Zero dependencies.",
+  "main": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "entail",
+    "lint": "standard",
+    "coverage": "c8 npm test"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "keywords": [
+    "parallel",
+    "concurrency",
+    "transform",
+    "map",
+    "async",
+    "promise",
+    "stream"
+  ],
+  "author": "Alan Shaw",
+  "license": "Apache-2.0 OR MIT",
+  "devDependencies": {
+    "c8": "^8.0.1",
+    "entail": "^2.1.1",
+    "p-defer": "^4.0.0",
+    "standard": "^17.1.0"
+  },
+  "standard": {
+    "ignore": [
+      "*.ts"
+    ]
+  }
+}
