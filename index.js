@@ -34,6 +34,8 @@ export class Parallel extends TransformStream {
           .catch(error => controller.error(error))
         // if at concurrency limit, wait for a pending task to complete
         if (pending === concurrency) {
+          // returning a promise here prevents transform from being called
+          // again until it resolves i.e. backpressure
           return new Promise(resolve => { onNext = resolve })
         }
       },
