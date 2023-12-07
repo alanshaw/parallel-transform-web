@@ -1,6 +1,6 @@
 {
   "name": "parallel-transform-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parallel transform for web streams. Zero dependencies.",
   "main": "index.js",
   "type": "module",
