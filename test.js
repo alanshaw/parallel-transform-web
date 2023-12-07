@@ -36,7 +36,6 @@ export const test = {
       pull (controller) {
         const value = input.shift()
         if (value == null) return controller.close()
-        console.log({ running, maxRunning })
         running++
         maxRunning = Math.max(running, maxRunning)
         controller.enqueue(value)

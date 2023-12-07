@@ -12,13 +12,12 @@ export class Parallel extends TransformStream {
    */
   constructor (concurrency, transformer, writableStrategy, readableStrategy) {
     let pending = 0
-    /** @type {I[]} */
-    const queue = []
-    /** @param {TransformStreamDefaultController<O>} controller */
-    const startTasks = controller => {
-      while (pending < concurrency) {
-        const input = queue.shift()
-        if (input == null) break
+    /** @type {(() => void|undefined)|null} */
+    let onNext = null
+    /** @type {(() => void|undefined)|null} */
+    let onIdle = null
+    super({
+      transform (input, controller) {
         pending++
         transformer(input)
           .then(value => {
@@ -31,19 +30,8 @@ export class Parallel extends TransformStream {
             if (pending === 0 && onIdle) {
               return onIdle()
             }
-            startTasks(controller)
           })
           .catch(error => controller.error(error))
-      }
-    }
-    /** @type {(() => void|undefined)|null} */
-    let onNext = null
-    /** @type {(() => void|undefined)|null} */
-    let onIdle = null
-    super({
-      transform (input, controller) {
-        queue.push(input)
-        startTasks(controller)
         // if at concurrency limit, wait for a pending task to complete
         if (pending === concurrency) {
           return new Promise(resolve => { onNext = resolve })
