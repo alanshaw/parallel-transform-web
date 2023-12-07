@@ -24,6 +24,10 @@ export class Parallel extends TransformStream {
           .then(value => {
             controller.enqueue(value)
             pending--
+            if (onNext) {
+              onNext()
+              onNext = null
+            }
             if (pending === 0 && onIdle) {
               return onIdle()
             }
@@ -32,12 +36,18 @@ export class Parallel extends TransformStream {
           .catch(error => controller.error(error))
       }
     }
-    /** @type {() => void|undefined} */
-    let onIdle
+    /** @type {(() => void|undefined)|null} */
+    let onNext = null
+    /** @type {(() => void|undefined)|null} */
+    let onIdle = null
     super({
       transform (input, controller) {
         queue.push(input)
         startTasks(controller)
+        // if at concurrency limit, wait for a pending task to complete
+        if (pending === concurrency) {
+          return new Promise(resolve => { onNext = resolve })
+        }
       },
       flush () {
         if (pending !== 0) {

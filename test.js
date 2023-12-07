@@ -20,6 +20,37 @@ export const test = {
     })
     const output = await collect(toReadable(input).pipeThrough(parallel))
     assert.deepEqual(output.sort(), input)
+  },
+
+  'should exert backpressure when max concurrency reached': async (/** @type {import('entail').assert} */ assert) => {
+    const concurrency = 2
+    const input = [0, 1, 2, 3, 4, 5]
+    let running = 0
+    let maxRunning = 0
+
+    const parallel = new Parallel(concurrency, async input => {
+      return new Promise(resolve => setTimeout(() => resolve(input), input * 100))
+    })
+
+    const readable = new ReadableStream({
+      pull (controller) {
+        const value = input.shift()
+        if (value == null) return controller.close()
+        console.log({ running, maxRunning })
+        running++
+        maxRunning = Math.max(running, maxRunning)
+        controller.enqueue(value)
+      }
+    // disable internal buffer so the readable doesn't pull, increment the
+    // count and just add the chunk to the buffer i.e. each pull is a pull from
+    // the Parallel stream.
+    }, new CountQueuingStrategy({ highWaterMark: 0 }))
+
+    await readable
+      .pipeThrough(parallel)
+      .pipeTo(new WritableStream({ write: () => { running-- } }))
+
+    assert.equal(maxRunning, concurrency)
   }
 }
 
